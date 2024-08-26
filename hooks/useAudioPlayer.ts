@@ -9,6 +9,7 @@ import AudioRecorderPlayer, {
 import RNFetchBlob from 'rn-fetch-blob';
 
 import {takePermissions} from '../utiles/permissions';
+import {FFmpegKit, ReturnCode} from 'ffmpeg-kit-react-native';
 
 const dirs = RNFetchBlob.fs.dirs;
 
@@ -44,6 +45,28 @@ const useAudioPlayer = () => {
     return `${dirs.DocumentDir}/audio_file_${fileIndex + 1}.m4a`;
   };
 
+  const splitAudio = async (inputFilePath: string) => {
+    // Define the FFmpeg command
+    const command = `-i ${inputFilePath} -f segment -segment_time 10 -c copy ${dirs.DocumentDir}/output%03d.m4a`;
+
+    try {
+      const session = await FFmpegKit.execute(command);
+      console.log('Session', session);
+
+      const returnCode = await session.getReturnCode();
+      // console.log('returnCode', returnCode);
+      // return;
+      if (ReturnCode.isSuccess(returnCode)) {
+        console.log('Audio split successfully:', session);
+        await listOutputFiles(); // List output files after splitting
+      } else {
+        console.error('Error splitting audio:', session);
+      }
+    } catch (error) {
+      console.error('FFmpeg execution error:', error);
+    }
+  };
+
   const updateRecording = async (e: {currentPosition: number}) => {
     const currentPosition = e.currentPosition;
 
@@ -51,6 +74,31 @@ const useAudioPlayer = () => {
       seconds: currentPosition,
       time: audioRecorderPlayer.mmssss(Math.floor(currentPosition)),
     });
+  };
+
+  const listOutputFiles = async () => {
+    try {
+      // Specify the path to your folder
+      const folderPath = RNFetchBlob.fs.dirs.DocumentDir;
+
+      // Fetch files from the folder
+      const files_ = await RNFetchBlob.fs
+        .ls(folderPath)
+        .then(fileNames => {
+          return fileNames;
+        })
+        .catch(error => {
+          console.error('Error fetching files:', error);
+        });
+
+      const outputFiles = files_.filter((file: {name: string}) => {
+        return file.startsWith('output') && file.endsWith('.m4a');
+      });
+
+      setRecordings(outputFiles);
+    } catch (error) {
+      console.error('Error listing output files:', error);
+    }
   };
 
   const startRecording = async () => {
@@ -61,13 +109,12 @@ const useAudioPlayer = () => {
   };
 
   const stopRecording = async () => {
-    if (intervalId) {
-      clearInterval(intervalId);
-      setIntervalId(null);
-    }
-    await audioRecorderPlayer.stopRecorder();
+    const recordedFilePath = await audioRecorderPlayer.stopRecorder();
     audioRecorderPlayer.removeRecordBackListener();
     setRecording({seconds: 0, time: '00:00:00'});
+
+    // Split the recorded audio
+    await splitAudio(recordedFilePath);
   };
 
   const startPlaying = async () => {
@@ -139,6 +186,7 @@ const useAudioPlayer = () => {
     pausePlaying,
     resumePlaying,
     seekTo,
+    recordings,
   };
 };
 

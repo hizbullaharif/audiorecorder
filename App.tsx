@@ -1,6 +1,6 @@
 // Page.tsx
 import React, {useRef} from 'react';
-import {Dimensions, SafeAreaView, Text} from 'react-native';
+import {Dimensions, FlatList, SafeAreaView, Text, View} from 'react-native';
 import ProgressBar from './components/ProgressBar';
 import RecordControls from './components/RecordControl';
 import PlayControls from './components/PlayControls';
@@ -23,6 +23,7 @@ const Page: React.FC = () => {
     pausePlaying,
     resumePlaying,
     seekTo,
+    recordings,
   } = useAudioPlayer();
 
   const handleStatusPress = (e: React.TouchEvent) => {
@@ -35,7 +36,6 @@ const Page: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.titleTxt}>Audio Recorder Player</Text>
       <AudioStatus recordTime={recording.time} />
       <RecordControls
         onStartRecord={startRecording}
@@ -52,6 +52,18 @@ const Page: React.FC = () => {
         playTime={playing.playTime}
         duration={playing.duration}
       />
+
+      {console.log('recordings', recordings)}
+
+      <View
+        style={{
+          backgroundColor: 'white',
+        }}>
+        <FlatList
+          data={recordings}
+          renderItem={({item}) => <Text>{item}</Text>}
+        />
+      </View>
     </SafeAreaView>
   );
 };

@@ -4863,6 +4863,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"ffmpeg-kit-react-native@npm:^6.0.2":
+  version: 6.0.2
+  resolution: "ffmpeg-kit-react-native@npm:6.0.2"
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+  checksum: 4175aa6d5cb78cffeb0a833d863b39d1cd7818780d36a02e2c3ba72be0b6e131b93c2dfb219f252148863d509bf6671eaa27e9f77ba59ef22debd955fcfb42e2
+  languageName: node
+  linkType: hard
+
 "file-entry-cache@npm:^6.0.1":
   version: 6.0.1
   resolution: "file-entry-cache@npm:6.0.1"
@@ -8178,6 +8188,7 @@ __metadata:
     "@types/react-test-renderer": ^18.0.0
     babel-jest: ^29.6.3
     eslint: ^8.19.0
+    ffmpeg-kit-react-native: ^6.0.2
     jest: ^29.6.3
     prettier: 2.8.8
     react: 18.2.0
